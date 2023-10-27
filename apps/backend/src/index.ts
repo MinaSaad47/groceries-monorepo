@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "./config";
 
 // validation and openapi
 import {
@@ -18,7 +17,6 @@ import swaggerUi from "swagger-ui-express";
 import expressPlayground from "graphql-playground-middleware-express";
 
 import schema from "./api/v1/graphql/schema";
-import { config } from "./config";
 
 // common middlewares
 import cookieParser from "cookie-parser";
@@ -96,8 +94,8 @@ app.use(extendExpressResponse);
 async function main() {
   await applyMigrations();
 
-  app.listen(config.app.port, () =>
-    logger.info(`App is listening on port ${config.app.port}`)
+  app.listen(process.env.PORT, () =>
+    logger.info(`App is listening on port ${process.env.PORT}`)
   );
 
   const usersService = new UsersService(db);

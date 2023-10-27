@@ -33,7 +33,7 @@ export class WebhooksControoler implements Controller {
       event = Stripe.instant.webhooks.constructEvent(
         req.body,
         sig as any,
-        process.env.STRIPE_WEBHOOK_SECRET as string
+        process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err: any) {
       console.log(err);

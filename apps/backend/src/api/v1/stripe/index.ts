@@ -6,7 +6,7 @@ abstract class Stripe {
   public static get instant() {
     if (!Stripe._instant) {
       Stripe._instant = new StripeClass(
-        process.env.STRIPE_SECRET_KEY as string,
+        process.env.STRIPE_SECRET_KEY,
         {
           apiVersion: "2023-08-16",
         }
