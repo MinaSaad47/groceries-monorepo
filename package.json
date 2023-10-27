@@ -1,0 +1,13 @@
+{
+  "name": "groceries-monorepo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "pnpm --recursive --parallel run build",
+    "dev": "pnpm --recursive --parallel run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "items" ALTER COLUMN "quantity" SET DATA TYPE integer;

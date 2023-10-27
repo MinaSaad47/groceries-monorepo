@@ -1,0 +1,44 @@
+{
+    "success": {
+        "200": {
+            "users": {
+                "update": "User was updated successfully",
+                "delete": "User was deleted successfully"
+            },
+            "items": {
+                "update": "Item was updated successfully",
+                "delete": "Item was deleted successfully"
+            },
+            "healthcheck": "API is up and running"
+        },
+        "201": {
+            "users": "User was created successfully",
+            "items": "Item was created successfully",
+            "carts": "Cart was created successfully"
+        }
+    },
+    "fail": {
+        "404": {
+            "users": "A user with id `{{id}}` was not found",
+            "items": "An item with id `{{id}}` was not found"
+        },
+        "401": {
+            "authorization": {
+                "role": "Users with `{{role}}` role are not permitted to access this resource"
+            }
+        },
+        "409": {
+            "duplication": {
+                "carts_to_items": "the item already present in the cart"
+            }
+        },
+        "422": {
+            "items": {
+                "availability": "the requested quantity `{{quantity}}` exceeds the available stock `{{stock}}`"
+            }
+        }
+    },
+    "error": {
+
+    }
+}

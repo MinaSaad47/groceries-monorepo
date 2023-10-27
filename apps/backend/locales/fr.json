@@ -1,0 +1,26 @@
+{
+  "success": {
+    "200": {
+      "user": {
+        "update": "Utilisateur mis à jour avec succès",
+        "delete": "Utilisateur supprimé avec succès"
+      },
+      "item": {
+        "update": "Article mis à jour avec succès",
+        "delete": "Article supprimé avec succès"
+      },
+      "healthcheck": "L'API est opérationnelle"
+    },
+    "201": {
+      "user": "Utilisateur créé avec succès",
+      "item": "Article créé avec succès"
+    }
+  },
+  "fail": {
+    "404": {
+      "user": "Aucun utilisateur trouvé avec l'ID `{{id}}`",
+      "item": "Aucun article trouvé avec l'ID `{{id}}`"
+    }
+  },
+  "error": {}
+}
