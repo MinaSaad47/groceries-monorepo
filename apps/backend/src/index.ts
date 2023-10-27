@@ -126,12 +126,9 @@ async function main() {
   app.use("/graphql", createHandler({ schema }));
   app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
 
-  app.use(
-    "/dashboard",
-    express.static(path.join(__dirname, "../../dashboard/dist"))
-  );
+  app.use("/", express.static(path.join(__dirname, "../../dashboard/dist")));
 
-  app.get("/dashboard/*", (req, res) => {
+  app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "../../dashboard/dist/index.html"));
   });
 
