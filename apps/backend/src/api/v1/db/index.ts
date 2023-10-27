@@ -7,14 +7,6 @@ import { Logger } from "drizzle-orm";
 import { format } from "sql-formatter";
 import * as schema from "./schema";
 
-import "pg";
-
-declare module "pg" {
-  interface Pool {
-    transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T>;
-  }
-}
-
 const dbUrl: string = process.env.DATABASE_URL!;
 
 export const applyMigrations = async () => {

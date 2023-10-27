@@ -32,7 +32,6 @@ import i18nextHttpMiddleware from "i18next-http-middleware";
 
 // extensions
 import extendExpressResponse from "./api/v1/utils/extensions/express.ext";
-import "./api/v1/utils/extensions/pg.ext";
 
 // utilities
 import logger from "./api/v1/utils/logger";
@@ -128,8 +127,6 @@ async function main() {
   );
   app.use("/graphql", createHandler({ schema }));
   app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
-
-  console.log(path.join(__dirname, "../../dashboard/dist"));
 
   app.use(
     "/dashboard",
