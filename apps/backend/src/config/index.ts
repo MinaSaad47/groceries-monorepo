@@ -1,5 +1,5 @@
-import { z } from "zod";
 import dotenv from "dotenv";
+import { z } from "zod";
 dotenv.config();
 
 // PORT=
@@ -27,7 +27,9 @@ const EnvSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string(),
 });
 
-EnvSchema.parse(process.env);
+const env = EnvSchema.parse(process.env);
+
+console.log(env);
 
 declare global {
   namespace NodeJS {
