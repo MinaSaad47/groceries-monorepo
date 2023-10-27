@@ -126,15 +126,7 @@ async function main() {
   app.use("/graphql", createHandler({ schema }));
   app.get("/playground", expressPlayground({ endpoint: "/graphql" }));
 
-  app.use("/", express.static(path.join(__dirname, "../../dashboard/dist")));
-
-  app.get("/*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../dashboard/dist/index.html"));
-  });
-
   controllers.forEach((ctrl) => app.use(ctrl.path, ctrl.router));
-  app.use(handleErrorMiddleware);
-
   const openapi = new OpenApiGeneratorV31(registry.definitions);
   const docs = openapi.generateDocument({
     info: {
@@ -149,6 +141,14 @@ async function main() {
   app.use("/api/v1/docs", swaggerUi.serve);
   app.use("/api/v1/docs", (req, res, next) => {
     return swaggerUi.setup(docs)(req, res, next);
+  });
+
+  app.use(handleErrorMiddleware);
+
+  app.use("/", express.static(path.join(__dirname, "../../dashboard/dist")));
+
+  app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../dashboard/dist/index.html"));
   });
 }
 
