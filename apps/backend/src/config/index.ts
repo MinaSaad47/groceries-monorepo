@@ -6,7 +6,7 @@ dotenv.config();
 // DATABASE_URL=
 // GOOGLE_CLIENT_ID=
 // GOOGLE_CLIENT_SECRET=
-// JWT_SECRET_DEV=
+// JWT_SECRET=
 // STRIPE_SECRET_KEY=
 // STRIPE_PUBLISHABLE_KEY=
 // STRIPE_WEBHOOK_SECRET=
@@ -18,7 +18,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string(),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
-  JWT_SECRET_DEV: z.string(),
+  JWT_SECRET: z.string(),
   STRIPE_SECRET_KEY: z.string(),
   STRIPE_PUBLISHABLE_KEY: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
