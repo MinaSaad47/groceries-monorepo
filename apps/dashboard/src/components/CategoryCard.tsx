@@ -1,12 +1,18 @@
-import { useMutation } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
+import axios from "axios";
+import { useState } from "react";
 import { FaEdit, FaShoppingBasket, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Constants } from "../constants";
 import { CategoriesMutations } from "../graphql/mutations/categories.mutations";
 import { CategoriesQueries } from "../graphql/queries";
+import ImageChooser from "./ImageChooser";
+import Spinner from "./Spinner";
 
 const CategoryCard = ({ category }: { category: any }) => {
   const navigate = useNavigate();
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const client = useApolloClient();
   const [deleteCategory] = useMutation(CategoriesMutations.DELETE_CATEGORY, {
     update: (cache) => {
       const { categories } = cache.readQuery({
@@ -27,15 +33,36 @@ const CategoryCard = ({ category }: { category: any }) => {
     }
   };
 
+  console.log(category.id);
+
+  const handleImageChange = async (image: File) => {
+    const formData = new FormData();
+    formData.append("image", image);
+    setUploadingImage(true);
+    const response = await axios.post(
+      `/api/v1/categories/${category.id}/image`,
+      formData
+    );
+    if (response.data.code === 200) {
+      await client.refetchQueries({ include: "active" });
+      setUploadingImage(false);
+    }
+  };
+
   return (
     <div className="card mb-3">
       <div className="row g-0">
         <div className="col-md-4">
-          <img
-            src={category.image ?? Constants.fallbackImage}
-            className="img-fluid rounded-start"
-            alt="category image"
-          />
+          {uploadingImage ? (
+            <div className="d-flex justify-content-center w-100 h-100">
+              <Spinner />
+            </div>
+          ) : (
+            <ImageChooser
+              src={category.image ?? Constants.fallbackImage}
+              onChange={handleImageChange}
+            />
+          )}
         </div>
         <div className="col-md-8 d-flex flex-column">
           <div className="card-body">

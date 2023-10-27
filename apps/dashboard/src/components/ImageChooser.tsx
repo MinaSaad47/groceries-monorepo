@@ -30,13 +30,13 @@ const ImageChooser = ({ src, alt, onChange }: Props) => {
   return (
     <>
       <input
-        id="image"
+        id={`image-${image}`}
         type="file"
         accept="image/*"
         style={{ display: "none" }}
         onChange={handleOnChange}
       />
-      <label htmlFor="image">
+      <label htmlFor={`image-${image}`}>
         <div
           role="button"
           style={{ position: "relative" }}
