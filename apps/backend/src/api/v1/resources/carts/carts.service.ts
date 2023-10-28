@@ -197,7 +197,7 @@ export class CartsService {
 
       const [insertedOrder] = await tx
         .insert(orders)
-        .values({ userId })
+        .values({ userId, addressId: address.id })
         .returning();
 
       const orderItemsValues = cart.items.map(({ item, qty }) => ({

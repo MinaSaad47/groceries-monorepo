@@ -30,6 +30,8 @@ export class OrdersService {
     const order = await this.db.query.orders.findFirst({
       where: eq(orders.id, orderId),
       with: {
+        address: true,
+        user: true,
         items: {
           columns: { itemId: false, orderId: false },
           with: {
