@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
+import AddOrUpdateCategoryModel from "../components/AddUpdateCategoryModal";
 import CategoryCard from "../components/CategoryCard";
-import CreateCategoryModel from "../components/CreateCategoryModel";
 import Spinner from "../components/Spinner";
 import { CategoriesQueries } from "../graphql/queries";
 
@@ -18,13 +18,13 @@ const Categories = () => {
   return (
     <div className="d-flex flex-column gap-2">
       <div className="d-flex justify-content-center">
-        <CreateCategoryModel />
+        <AddOrUpdateCategoryModel />
       </div>
       <div className="row">
         {data.categories.map((category: any) => {
           return (
-            <div className="col col-md-6 p-3">
-              <CategoryCard key={category.id} category={category} />
+            <div key={category.id} className="col col-md-6 p-3">
+              <CategoryCard category={category} />
             </div>
           );
         })}

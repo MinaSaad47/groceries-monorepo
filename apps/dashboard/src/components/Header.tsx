@@ -6,7 +6,6 @@ import { SiJsonwebtokens } from "react-icons/si";
 import logo from "../assets/logo.svg";
 
 const Header = () => {
-  console.log(logo);
   const location = useLocation();
 
   const handleLogout = () => {

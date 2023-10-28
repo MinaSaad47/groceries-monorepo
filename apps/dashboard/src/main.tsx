@@ -7,7 +7,6 @@ import {
 import { setContext } from "@apollo/client/link/context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import axios from "axios";
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
@@ -57,13 +56,13 @@ const client = new ApolloClient({
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <ApolloProvider client={client}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ApolloProvider>
-    </GoogleOAuthProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+    <ApolloProvider client={client}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ApolloProvider>
+  </GoogleOAuthProvider>
+  // </React.StrictMode>
 );

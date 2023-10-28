@@ -4,8 +4,6 @@ import { Constants } from "../constants";
 const ItemCard = ({ item }: { item: any }) => {
   const navigate = useNavigate();
 
-  console.log(item);
-
   return (
     <div
       className="card btn btn-secondary p-0"

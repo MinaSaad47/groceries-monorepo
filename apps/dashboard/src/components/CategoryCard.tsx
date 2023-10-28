@@ -1,11 +1,12 @@
 import { useApolloClient, useMutation } from "@apollo/client";
 import axios from "axios";
 import { useState } from "react";
-import { FaEdit, FaShoppingBasket, FaTrashAlt } from "react-icons/fa";
+import { FaShoppingBasket, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Constants } from "../constants";
 import { CategoriesMutations } from "../graphql/mutations/categories.mutations";
 import { CategoriesQueries } from "../graphql/queries";
+import AddOrUpdateCategoryModel from "./AddUpdateCategoryModal";
 import ImageChooser from "./ImageChooser";
 import Spinner from "./Spinner";
 
@@ -32,8 +33,6 @@ const CategoryCard = ({ category }: { category: any }) => {
       await deleteCategory({ variables: { id: category.id } });
     }
   };
-
-  console.log(category.id);
 
   const handleImageChange = async (image: File) => {
     const formData = new FormData();
@@ -76,9 +75,7 @@ const CategoryCard = ({ category }: { category: any }) => {
               <FaShoppingBasket size={40} /> <div>View Items</div>
             </button>
             <div className="d-flex flex-column gap-2">
-              <button type="button" className="btn btn-secondary">
-                <FaEdit /> Edit
-              </button>
+              <AddOrUpdateCategoryModel category={category} />
               <button
                 type="button"
                 className="btn btn-danger"

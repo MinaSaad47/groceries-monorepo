@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import {
   GraphQLBoolean,
   GraphQLFloat,
+  GraphQLInputObjectType,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
@@ -175,6 +176,13 @@ const CategoryTransType = new GraphQLObjectType({
   fields: () => ({
     name: { type: GraphQLString },
     lang: { type: GraphQLString },
+  }),
+});
+const CategoryTransInputType = new GraphQLInputObjectType({
+  name: "CategoryTransInputType",
+  fields: () => ({
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    lang: { type: new GraphQLNonNull(GraphQLString) },
   }),
 });
 
@@ -354,20 +362,44 @@ const mutation = new GraphQLObjectType({
         });
       },
     },
-    updateCategory: {
+    addOrUpdateCategory: {
       type: CategoryType,
       args: {
-        id: { type: new GraphQLNonNull(GraphQLString) },
-        name: { type: GraphQLString },
+        id: { type: GraphQLString },
+        details: {
+          type: new GraphQLNonNull(new GraphQLList(CategoryTransInputType)),
+        },
       },
       resolve: async (parent, args) => {
-        const { id, ...rest } = args;
-        const [category] = await db
-          .update(categories)
-          .set(rest)
-          .where(eq(categories.id, args.id))
-          .returning();
-        return category;
+        return await db.transaction(async (tx) => {
+          const [category] = await tx
+            .insert(categories)
+            .values({ id: args.id })
+            .onConflictDoNothing({
+              target: [categories.id],
+            })
+            .returning();
+
+          const id = category?.id ?? args.id;
+
+          args.details.forEach(async ({ lang, name }: any) => {
+            const values = { lang, name, categoryId: id };
+            await tx
+              .insert(categoriesTrans)
+              .values(values)
+              .onConflictDoUpdate({
+                set: values,
+                target: [categoriesTrans.lang, categoriesTrans.categoryId],
+                where: and(
+                  eq(categoriesTrans.categoryId, id),
+                  eq(categoriesTrans.lang, lang)
+                ),
+              });
+          });
+          return category ?? await tx.query.categories.findFirst({
+            where: eq(categories.id, id),
+          })
+        });
       },
     },
     deleteCategory: {
