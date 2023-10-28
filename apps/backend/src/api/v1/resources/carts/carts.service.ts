@@ -82,10 +82,10 @@ export class CartsService {
 
       if (qty === 0) {
         const [cartItem] = await tx
-          .delete(ordersToItems)
+          .delete(cartsToItems)
           .where(
             and(
-              eq(cartsToItems.cartId, carts.id),
+              eq(cartsToItems.cartId, userId),
               eq(cartsToItems.itemId, itemId)
             )
           )

@@ -6,12 +6,6 @@ import { users } from "../../db/schema";
 import { signJwt } from "../../utils/auth.utils";
 import Controller from "../../utils/interfaces/controller.interface";
 
-const oAuth2Client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  "postmessage"
-);
-
 export class OauthController implements Controller {
   path: string;
   router: Router;
@@ -26,7 +20,12 @@ export class OauthController implements Controller {
   }
 
   private token: RequestHandler<{}, {}, any> = async (req, res) => {
-    const { code, firstName, lastName } = req.body;
+    const { code, mobile } = req.body;
+    const oAuth2Client = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      mobile === true ? undefined : "postmessage"
+    );
     const { tokens } = await oAuth2Client.getToken(code);
     const loginTicket = await oAuth2Client.verifyIdToken({
       idToken: tokens.id_token!,

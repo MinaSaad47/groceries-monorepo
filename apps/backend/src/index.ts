@@ -45,7 +45,6 @@ import { createHandler } from "graphql-http/lib/use/express";
 import path from "path";
 import { authorizeRoles, requireJwt } from "./api/v1/middlewares";
 import { handleErrorMiddleware } from "./api/v1/middlewares/error.middleware";
-import { AuthController } from "./api/v1/resources/auth/auth.controller";
 import { CartsController } from "./api/v1/resources/carts/carts.controller";
 import { CartsService } from "./api/v1/resources/carts/carts.service";
 import { CategoriesController } from "./api/v1/resources/categories/categories.controller";
@@ -106,7 +105,6 @@ async function main() {
   const ordersService = new OrdersService(db);
 
   const controllers = [
-    new AuthController("/auth"),
     new UserController("/api/v1/users", usersService),
     new ProfileController("/api/v1/profile", profileService),
     new ItemsController("/api/v1/items", itemsServices),
@@ -114,7 +112,7 @@ async function main() {
     new OrdersController("/api/v1/profile/orders", ordersService),
     new CategoriesController("/api/v1/categories", categoriesService),
     new WebhooksControoler("/api/v1/webhooks"),
-    new OauthController("/oauth"),
+    new OauthController("/api/v1/oauth"),
   ];
 
   app.use(

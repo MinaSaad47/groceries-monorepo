@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
     flow: "auth-code",
     onSuccess: async ({ code }) => {
       setLoading(true);
-      let { data } = await axios.post("/oauth/google", { code });
+      let { data } = await axios.post("/api/v1/oauth/google", { code });
       if (data?.status !== "success") {
         setLoading(false);
         return;
