@@ -1,16 +1,17 @@
 import { InferSelectModel, relations, sql } from "drizzle-orm";
-import {
-  boolean,
-  date,
-  doublePrecision,
-  integer,
-  pgEnum,
-  pgTable,
-  primaryKey,
-  text,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import
+  {
+    boolean,
+    date,
+    doublePrecision,
+    integer,
+    pgEnum,
+    pgTable,
+    primaryKey,
+    text,
+    uuid,
+    varchar,
+  } from "drizzle-orm/pg-core";
 
 // Define an enum for user roles
 export const userRole = pgEnum("user_role", ["admin", "user"]);
@@ -49,8 +50,9 @@ export const addresses = pgTable("addresses", {
   lng: doublePrecision("lng").notNull(),
   isDefault: boolean("is_default").default(false),
 });
-export const addressesRelations = relations(addresses, ({ one }) => ({
+export const addressesRelations = relations(addresses, ({ one, many }) => ({
   user: one(users, { fields: [addresses.userId], references: [users.id] }),
+  orders: many(orders),
 }));
 
 // Define the "categories" table
@@ -63,22 +65,10 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
   details: many(categoriesTrans),
 }));
 
-// Define the "brands" table
-export const brands = pgTable("brands", {
-  id: uuid("id").primaryKey().notNull().defaultRandom(),
-  name: varchar("name", { length: 255 }).notNull(),
-});
-export const brandsRelations = relations(brands, ({ many }) => ({
-  items: many(items),
-}));
-
 // Define the "items" table
 export const items = pgTable("items", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   categoryId: uuid("category_id").references(() => categories.id, {
-    onDelete: "set null",
-  }),
-  brandId: uuid("brand_id").references(() => brands.id, {
     onDelete: "set null",
   }),
   thumbnail: varchar("thumbnail", { length: 255 }),
@@ -93,7 +83,6 @@ export const itemsRelations = relations(items, ({ many, one }) => ({
     fields: [items.categoryId],
     references: [categories.id],
   }),
-  brand: one(brands, { fields: [items.brandId], references: [brands.id] }),
   images: many(images),
   favoritedUsers: many(favorites),
   carts: many(cartsToItems),
@@ -117,7 +106,7 @@ export const imagesRelations = relations(images, ({ one }) => ({
 export const carts = pgTable("carts", {
   id: uuid("id")
     .primaryKey()
-    .references(() => users.id)
+    .references(() => users.id, {onDelete: "cascade"})
     .notNull()
     .defaultRandom(),
 });
@@ -157,15 +146,22 @@ export type OrderStatus = (typeof orderStatus.enumValues)[number];
 export const orders = pgTable("orders", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   status: orderStatus("status").notNull().default("pending"),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+  addressId: uuid("address_id").references(() => addresses.id, {
+    onDelete: "set null",
+  }),
   createdAt: date("created_at").notNull().defaultNow(),
-  expiresAt: date("expires_at").notNull().default(
-    sql`CURRENT_TIMESTAMP + interval '1 minute'`
-  ),
+  expiresAt: date("expires_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP + interval '30 minute'`),
 });
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   user: one(users, { fields: [orders.userId], references: [users.id] }),
   items: many(ordersToItems),
+  address: one(addresses, {
+    fields: [orders.addressId],
+    references: [addresses.id],
+  }),
 }));
 
 export const ordersToItems = pgTable(

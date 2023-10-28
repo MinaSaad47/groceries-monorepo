@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { Database } from "../../db";
 import {
+  addresses,
   carts,
   cartsToItems,
   items,
@@ -11,7 +12,11 @@ import {
 import Stripe from "../../stripe";
 import { NotFoundError } from "../../utils/errors/notfound.error";
 import { QueryLang } from "../items/items.validation";
-import { EmptyCartError, ItemAvailabilityError } from "./carts.errors";
+import {
+  EmptyCartError,
+  ItemAvailabilityError,
+  NoDefaultAddressSetError,
+} from "./carts.errors";
 import { CreateCartToItem } from "./carts.validation";
 
 export class CartsService {
@@ -181,6 +186,14 @@ export class CartsService {
 
         amount += qty * item.price;
       });
+
+      const address = await tx.query.addresses.findFirst({
+        where: and(eq(addresses.userId, userId), eq(addresses.isDefault, true)),
+      });
+
+      if (!address) {
+        throw new NoDefaultAddressSetError();
+      }
 
       const [insertedOrder] = await tx
         .insert(orders)

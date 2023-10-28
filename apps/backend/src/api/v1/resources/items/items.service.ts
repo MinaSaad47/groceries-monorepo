@@ -133,7 +133,6 @@ export class ItemsService {
       return await tx.query.items.findFirst({
         where: eq(items.id, item.id),
         with: {
-          brand: true,
           category: true,
           images: true,
           reviews: true,
@@ -147,7 +146,6 @@ export class ItemsService {
     const item = await this.db.query.items.findFirst({
       where: eq(items.id, itemId),
       with: {
-        brand: true,
         category: {
           with: { details: { where: eq(categoriesTrans.lang, query.lang) } },
         },
@@ -226,7 +224,6 @@ export class ItemsService {
       return await tx.query.items.findFirst({
         where: eq(items.id, item.id),
         with: {
-          brand: true,
           category: true,
           images: { columns: { itemId: false } },
           reviews: { with: { user: true }, columns: { userId: false } },

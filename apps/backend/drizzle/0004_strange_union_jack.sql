@@ -1,1 +1,0 @@
-ALTER TABLE "addresses" RENAME COLUMN "long" TO "lng";

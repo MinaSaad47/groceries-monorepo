@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns, sql } from "drizzle-orm";
 import { Database } from "../../db";
-import { orders } from "../../db/schema";
+import { items, orders, ordersToItems } from "../../db/schema";
 import Stripe from "../../stripe";
 import { AuthorizationError } from "../../utils/errors/auth.error";
 import { NotFoundError } from "../../utils/errors/notfound.error";
@@ -13,9 +13,17 @@ export class OrdersService {
   }
 
   public getAll = async (userId: string) => {
-    return await this.db.query.orders.findMany({
-      where: eq(orders.userId, userId),
-    });
+    const orderColumns = getTableColumns(orders);
+    return await this.db
+      .select({
+        ...orderColumns,
+        totalPrice: sql<number>`sum(${ordersToItems.qty} * ${items.price})`,
+      })
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .leftJoin(ordersToItems, eq(ordersToItems.orderId, orders.id))
+      .leftJoin(items, eq(items.id, ordersToItems.itemId))
+      .groupBy(orders.id);
   };
 
   public getOne = async (userId: string, orderId: string) => {
