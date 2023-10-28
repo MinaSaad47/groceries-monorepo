@@ -12,6 +12,7 @@ import Stripe from "../../stripe";
 import { NotFoundError } from "../../utils/errors/notfound.error";
 import { QueryLang } from "../items/items.validation";
 import { EmptyCartError, ItemAvailabilityError } from "./carts.errors";
+import { CreateCartToItem } from "./carts.validation";
 
 export class CartsService {
   private db: Database;
@@ -62,7 +63,10 @@ export class CartsService {
     });
   }
 
-  public async addOrUpdateItem(userId: string, itemId: string, qty: number) {
+  public async addOrUpdateItem(
+    userId: string,
+    { itemId, qty, operator }: CreateCartToItem
+  ) {
     return this.db.transaction(async (tx) => {
       let exists = await tx.query.carts.findFirst({
         where: eq(carts.id, userId),
@@ -79,8 +83,24 @@ export class CartsService {
       if (!item) {
         throw new NotFoundError("items", itemId);
       }
+      const oldCartItem = await tx.query.cartsToItems.findFirst({
+        where: and(
+          eq(cartsToItems.cartId, userId),
+          eq(cartsToItems.itemId, itemId)
+        ),
+      });
 
-      if (qty === 0) {
+      const oldQty = oldCartItem?.qty ?? 0;
+      let newQty: number;
+      if (operator === "+") {
+        newQty = oldQty + qty;
+      } else if (operator === "-") {
+        newQty = oldQty - qty;
+      } else {
+        newQty = qty;
+      }
+
+      if (newQty <= 0) {
         const [cartItem] = await tx
           .delete(cartsToItems)
           .where(
@@ -98,9 +118,9 @@ export class CartsService {
 
       const [cartItem] = await tx
         .insert(cartsToItems)
-        .values({ cartId: userId, itemId, qty })
+        .values({ cartId: userId, itemId, qty: newQty })
         .onConflictDoUpdate({
-          set: { qty },
+          set: { qty: newQty },
           target: [cartsToItems.cartId, cartsToItems.itemId],
         })
         .returning();

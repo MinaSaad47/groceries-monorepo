@@ -5,12 +5,7 @@ import Controller from "../../utils/interfaces/controller.interface";
 import { bearerAuth, registry } from "../../utils/openapi/registery";
 import { QueryLang, QueryLangSchema } from "../items/items.validation";
 import { CartsService } from "./carts.service";
-import {
-  CreateCartToItemSchema as ChangeCartItemSchema,
-  CreateCartToItem,
-  SelectCart,
-  SelectCartSchema,
-} from "./carts.validation";
+import { CreateCartToItem, CreateCartToItemSchema } from "./carts.validation";
 
 export class CartsController implements Controller {
   public path: string;
@@ -55,9 +50,7 @@ export class CartsController implements Controller {
       method: "post",
       security: [{ [bearerAuth.name]: [] }],
       summary: "checkout the cart and create order",
-      request: {
-        params: SelectCartSchema,
-      },
+
       responses: {
         200: {
           description:
@@ -86,11 +79,10 @@ export class CartsController implements Controller {
       security: [{ [bearerAuth.name]: [] }],
       summary: "change item in cart",
       request: {
-        params: SelectCartSchema,
         body: {
           content: {
             "application/json": {
-              schema: ChangeCartItemSchema,
+              schema: CreateCartToItemSchema,
             },
           },
         },
@@ -112,36 +104,34 @@ export class CartsController implements Controller {
 
     this.router
       .route("/items")
-      .all(validateRequest(z.object({ body: ChangeCartItemSchema })))
+      .all(validateRequest(z.object({ body: CreateCartToItemSchema })))
       .post(this.addOrUpdateItem);
 
     this.router.route("/empty").post(this.empty);
   }
 
-  private getOne: RequestHandler<SelectCart, {}, {}, QueryLang> = async (
-    req,
-    res
-  ) => {
+  private getOne: RequestHandler<{}, {}, {}, QueryLang> = async (req, res) => {
     const cart = await this.cartsService.getOne(req.user!.id, req.query);
     res.success({ data: cart });
   };
 
-  private addOrUpdateItem: RequestHandler<SelectCart, {}, CreateCartToItem> =
-    async (req, res) => {
-      const item = await this.cartsService.addOrUpdateItem(
-        req.user!.id,
-        req.body.itemId,
-        req.body.qty
-      );
+  private addOrUpdateItem: RequestHandler<{}, {}, CreateCartToItem> = async (
+    req,
+    res
+  ) => {
+    const item = await this.cartsService.addOrUpdateItem(
+      req.user!.id,
+      req.body
+    );
 
-      res.success({
-        code: 200,
-        data: item,
-        i18n: { key: req.body.qty === 0 ? "cart.item.delete" : "cart.item" },
-      });
-    };
+    res.success({
+      code: 200,
+      data: item,
+      i18n: { key: req.body.qty === 0 ? "cart.item.delete" : "cart.item" },
+    });
+  };
 
-  private checkout: RequestHandler<SelectCart> = async (req, res) => {
+  private checkout: RequestHandler = async (req, res) => {
     const order = await this.cartsService.checkout(req.user!.id);
     res.success({ data: order, i18n: { key: "carts.checkout" } });
   };
