@@ -1,68 +1,160 @@
 import { useMutation, useQuery } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { FaEdit, FaShoppingBasket } from "react-icons/fa";
+import { useFieldArray, useForm } from "react-hook-form";
+import { FaEdit, FaPlus, FaShoppingBasket, FaTrashAlt } from "react-icons/fa";
 import { z } from "zod";
 import { ItemsMutations } from "../graphql/mutations";
-import { CategoriesQueries, ItemsQueries } from "../graphql/queries";
+import { CategoriesQueries } from "../graphql/queries";
 import Spinner from "./Spinner";
 
 const InputSchema = z
   .object({
-    name: z.string().trim().min(1),
-    description: z.string().trim().min(1),
+    details: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          lang: z.string().min(1).max(3),
+          description: z.string().min(1),
+        })
+      )
+      .nonempty()
+      .superRefine((args, ctx) => {
+        if (
+          args.length > 0 &&
+          args.findIndex(({ lang }) => lang === "en") < 0
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message: "At least one language must be English",
+          });
+        }
+      }),
     price: z.number({ coerce: true }).min(1),
     offerPrice: z.number({ coerce: true }).min(0).optional(),
     qty: z.number({ coerce: true }).min(1),
     qtyType: z.string().min(1),
-    categoryId: z.string().uuid().optional(),
+    categoryId: z
+      .string()
+      .uuid()
+      .or(z.literal("").transform((_) => undefined)),
   })
   .partial();
 
 type Input = z.infer<typeof InputSchema>;
 
-const EditItemModal = ({ item }: { item: any }) => {
+const AddOrUpdateItemModal = ({ item }: any) => {
   const values = {
     ...item,
-    categoryId: item.category?.id ?? undefined,
+    categoryId: item?.category?.id ?? undefined,
   };
   const form = useForm<Input>({
     resolver: zodResolver(InputSchema),
     values,
   });
-  const [updateItem, { loading }] = useMutation(ItemsMutations.UPDATE_ITEM, {
-    refetchQueries: [ItemsQueries.GET_ALL_ITEMS],
-    update: (cache, { data }) => {
-      console.log(data);
-      cache.writeQuery({
-        query: ItemsQueries.GET_ONE_ITEM,
-        variables: {
-          id: data.updateItem.id
-        },
-        data: {
-          item: data.updateItem,
-        },
-      });
-    },
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "details",
   });
+
+  const [updateItem, { loading }] = useMutation(
+    ItemsMutations.ADD_OR_UPDATE_ITEM,
+    {
+      refetchQueries: "active",
+    }
+  );
   const { data, loading: categoryLoading } = useQuery(
     CategoriesQueries.GET_ALL_CATEGORIES
   );
 
   const onSubmit = async (data: Input) => {
     console.log(data);
-    await updateItem({ variables: { id: item.id, ...data } });
+    await updateItem({ variables: { id: item?.id, ...data } });
   };
+
+  const renderFields = fields.map((field, index) => (
+    <div
+      className="position-relative mb-3 border d-flex flex-column gap-1 rounded p-2"
+      key={field.id}>
+      <div className="d-flex gap-3 ">
+        <div className="w-25">
+          <label htmlFor={`details.${index}.lang`} className="form-label">
+            Lang
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id={`details.${index}.lang`}
+            {...form.register(`details.${index}.lang`)}
+          />
+          {form.formState.errors.details?.[index]?.lang?.message && (
+            <div className="text-danger">
+              {form.formState.errors.details?.[index]?.lang?.message}
+            </div>
+          )}
+        </div>
+        <div className="w-75">
+          <label htmlFor={`details.${index}.name`} className="form-label">
+            Name
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id={`details.${index}.name`}
+            {...form.register(`details.${index}.name`)}
+          />
+          {form.formState.errors.details?.[index]?.name?.message && (
+            <div className="text-danger">
+              {form.formState.errors.details?.[index]?.name?.message}{" "}
+            </div>
+          )}
+        </div>
+      </div>
+      <div>
+        <label htmlFor={`details.${index}.description`} className="form-label">
+          Description
+        </label>
+        <textarea
+          className="form-control"
+          id={`details.${index}.description`}
+          {...form.register(`details.${index}.description`)}
+        />
+        {form.formState.errors.details?.[index]?.description?.message && (
+          <div className="text-danger">
+            {" "}
+            {form.formState.errors.details?.[index]?.description?.message}{" "}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        className="position-absolute top-0 end-0  btn btn-danger"
+        onClick={() => remove(index)}>
+        <FaTrashAlt />{" "}
+      </button>
+    </div>
+  ));
+
+  const fieldsError = form.formState.errors.details?.root
+    ? form.formState.errors.details.root.message
+    : form.formState.errors.details?.message;
 
   return (
     <>
       <button
         type="button"
-        className="btn btn-secondary btn-sm"
+        className={`btn ${item?.id ? "btn-secondary" : "btn-primary btn-lg"} `}
         data-bs-toggle="modal"
         data-bs-target="#staticBackdrop">
         <div className="d-flex align-items-center justify-content-between gap-3">
-          <FaEdit /> Edit Item
+          {item?.id ? (
+            <>
+              <FaEdit /> Edit Item
+            </>
+          ) : (
+            <>
+              <FaPlus className="me-3" /> Create Item
+            </>
+          )}
         </div>
       </button>
 
@@ -89,23 +181,22 @@ const EditItemModal = ({ item }: { item: any }) => {
               </div>
               <div className="modal-body">
                 <form onSubmit={form.handleSubmit(onSubmit)} className="row">
-                  <div className="col-6 mb-3">
-                    <label htmlFor="name" className="form-label">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="name"
-                      {...form.register("name")}
-                    />
-                    {form.formState.errors.name && (
-                      <p className="text-danger">
-                        {form.formState.errors.name.message}
-                      </p>
+                  <div className="d-flex flex-column">
+                    {fieldsError && (
+                      <div className="text-danger">{fieldsError}</div>
                     )}
+                    {renderFields}
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() =>
+                        append({ description: "", lang: "", name: "" })
+                      }>
+                      Add Translation
+                    </button>
                   </div>
-                  <div className="mb-3 col-6">
+                  <hr className="border-secondary my-3" />
+                  <div className="mb-3">
                     <label htmlFor="category" className="form-label">
                       Category
                     </label>
@@ -113,6 +204,7 @@ const EditItemModal = ({ item }: { item: any }) => {
                       className="form-select"
                       id="category"
                       {...form.register("categoryId")}>
+                      <option value="">Select Category</option>
                       {data?.categories?.map((category: any) => (
                         <option key={category.id} value={category.id}>
                           {category.name}
@@ -122,22 +214,6 @@ const EditItemModal = ({ item }: { item: any }) => {
                     {form.formState.errors.categoryId && (
                       <p className="text-danger">
                         {form.formState.errors.categoryId.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="description" className="form-label">
-                      Description
-                    </label>
-                    <textarea
-                      className="form-control"
-                      id="description"
-                      rows={3}
-                      {...form.register("description")}
-                    />
-                    {form.formState.errors.description && (
-                      <p className="text-danger">
-                        {form.formState.errors.description.message}
                       </p>
                     )}
                   </div>
@@ -231,4 +307,4 @@ const EditItemModal = ({ item }: { item: any }) => {
   );
 };
 
-export default EditItemModal;
+export default AddOrUpdateItemModal;

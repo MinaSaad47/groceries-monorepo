@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client";
-import CreateItemModal from "../components/CreateItemModal";
 import ItemCard from "../components/ItemCard";
 import Spinner from "../components/Spinner";
+import AddOrUpdateItemModal from "../components/ِAddOrUpdateItemModal";
 import { ItemsQueries } from "../graphql/queries/items.queries";
 
 const Items = () => {
@@ -16,7 +16,7 @@ const Items = () => {
   return (
     <div className="d-flex flex-column gap-2">
       <div className="d-flex justify-content-center">
-        <CreateItemModal />
+        <AddOrUpdateItemModal />
       </div>
       <div className="row">
         {data.items.map((item: any) => {

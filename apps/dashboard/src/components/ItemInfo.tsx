@@ -11,9 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { Constants } from "../constants";
 import { ItemsMutations } from "../graphql/mutations";
 import { ItemsQueries } from "../graphql/queries";
-import EditItemModal from "./EditItemModal";
 import ImageChooser from "./ImageChooser";
 import Spinner from "./Spinner";
+import AddOrUpdateItemModal from "./ِAddOrUpdateItemModal";
 
 const ItemInfo = ({ item }: { item: any }) => {
   const navigate = useNavigate();
@@ -65,8 +65,8 @@ const ItemInfo = ({ item }: { item: any }) => {
               <small className="text-secondary">{item.id}</small>
             </div>
             <div className="d-flex flex-column gap-2">
-              <EditItemModal item={item} />
-              <button className="btn btn-danger btn-sm " onClick={handleDelete}>
+              <AddOrUpdateItemModal item={item} />
+              <button className="btn btn-danger btn" onClick={handleDelete}>
                 <div className="d-flex align-items-center justify-content-between gap-3">
                   <FaTrash /> Delete
                 </div>

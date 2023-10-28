@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import AddOrUpdateCategoryModel from "../components/AddUpdateCategoryModal";
+import AddOrUpdateCategoryModel from "../components/AddOrUpdateCategoryModal";
 import CategoryCard from "../components/CategoryCard";
 import Spinner from "../components/Spinner";
 import { CategoriesQueries } from "../graphql/queries";

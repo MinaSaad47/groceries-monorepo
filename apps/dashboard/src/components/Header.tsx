@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 
 import { FaSignOutAlt } from "react-icons/fa";
-import { SiJsonwebtokens } from "react-icons/si";
+import { SiJsonwebtokens, SiSwagger } from "react-icons/si";
 
+import { toast } from "react-toastify";
 import logo from "../assets/logo.svg";
 
 const Header = () => {
@@ -16,6 +17,11 @@ const Header = () => {
   const handleCopyToken = () => {
     const { token } = JSON.parse(localStorage.getItem("credentials") || "{}");
     window.navigator.clipboard.writeText(token);
+    toast.info("copied jwt token to clipboard");
+  };
+
+  const handleGoToDocs = () => {
+    window.open("/api/v1/docs", "_blank");
   };
 
   return (
@@ -67,12 +73,17 @@ const Header = () => {
         <button
           className="btn btn-primary btn-sm ms-auto me-2"
           onClick={handleCopyToken}>
-          <SiJsonwebtokens />
+          <SiJsonwebtokens size={30} />
+        </button>
+        <button
+          className="btn btn-success btn-sm ms-auto me-2"
+          onClick={handleGoToDocs}>
+          <SiSwagger size={30} />
         </button>
         <button
           className="btn btn-danger btn-sm ms-auto"
           onClick={handleLogout}>
-          <FaSignOutAlt />
+          <FaSignOutAlt size={30} />
         </button>
         <button
           className="ms-2 navbar-toggler"

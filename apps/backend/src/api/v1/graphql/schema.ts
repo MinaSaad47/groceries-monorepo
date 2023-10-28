@@ -133,6 +133,14 @@ const ItemTransType = new GraphQLObjectType({
     lang: { type: GraphQLString },
   }),
 });
+const ItemTransInputType = new GraphQLInputObjectType({
+  name: "ItemTransInputType",
+  fields: () => ({
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    description: { type: new GraphQLNonNull(GraphQLString) },
+    lang: { type: new GraphQLNonNull(GraphQLString) },
+  }),
+});
 
 const CategoryType = new GraphQLObjectType({
   name: "CategoryType",
@@ -258,32 +266,7 @@ const RootQueryType = new GraphQLObjectType({
 const mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: () => ({
-    addItem: {
-      type: ItemType,
-      args: {
-        name: { type: new GraphQLNonNull(GraphQLString) },
-        description: { type: new GraphQLNonNull(GraphQLString) },
-        price: { type: new GraphQLNonNull(GraphQLFloat) },
-        offerPrice: { type: new GraphQLNonNull(GraphQLFloat) },
-        qty: { type: new GraphQLNonNull(GraphQLInt) },
-        qtyType: { type: new GraphQLNonNull(GraphQLString) },
-        thumbnail: { type: GraphQLString },
-        categoryId: { type: GraphQLString },
-      },
-      resolve: async (parent, args) => {
-        const { name, description, ...rest } = args;
-        return await db.transaction(async (tx) => {
-          const [item] = await tx.insert(items).values(rest).returning();
-          await tx.insert(itemsTrans).values({
-            name,
-            description,
-            lang: "en",
-            itemId: item.id,
-          });
-          return item;
-        });
-      },
-    },
+    // -------------------users mutations-------------------
     deleteUser: {
       type: UserType,
       args: {
@@ -297,36 +280,56 @@ const mutation = new GraphQLObjectType({
         return user;
       },
     },
-    updateItem: {
+    // -------------------items mutations-------------------
+    addOrUpdateItem: {
       type: ItemType,
       args: {
-        id: { type: new GraphQLNonNull(GraphQLString) },
-        name: { type: GraphQLString },
-        description: { type: GraphQLString },
-        price: { type: GraphQLFloat },
+        id: { type: GraphQLString },
+        details: {
+          type: new GraphQLNonNull(new GraphQLList(ItemTransInputType)),
+        },
+        price: { type: new GraphQLNonNull(GraphQLFloat) },
         offerPrice: { type: GraphQLFloat },
-        qty: { type: GraphQLInt },
-        qtyType: { type: GraphQLString },
-        thumbnail: { type: GraphQLString },
+        qty: { type: new GraphQLNonNull(GraphQLInt) },
+        qtyType: { type: new GraphQLNonNull(GraphQLString) },
         categoryId: { type: GraphQLString },
       },
       resolve: async (parent, args) => {
         return await db.transaction(async (tx) => {
-          const { id, name, description, ...rest } = args;
-          if (name || description) {
+          const { details, ...values } = args;
+          const [item] = await tx
+            .insert(items)
+            .values(values)
+            .onConflictDoUpdate({
+              set: values,
+              target: [items.id],
+            })
+            .returning();
+
+          const id = values.id ?? item.id;
+          await tx.delete(itemsTrans).where(eq(itemsTrans.itemId, id));
+          details.map(async ({ name, description, lang }: any) => {
             await tx
-              .update(itemsTrans)
-              .set({ name, description })
-              .where(eq(itemsTrans.itemId, id));
-          }
-          const [item] = rest
-            ? await tx
-                .update(items)
-                .set(rest)
-                .where(eq(items.id, id))
-                .returning()
-            : await tx.select().from(items);
-          return item;
+              .insert(itemsTrans)
+              .values({
+                name,
+                description,
+                lang,
+                itemId: id,
+              })
+              .onConflictDoUpdate({
+                target: [itemsTrans.itemId, itemsTrans.lang],
+                set: { name, description, itemId: id },
+                where: eq(itemsTrans.itemId, id),
+              });
+          });
+
+          return (
+            item ??
+            (await tx.query.items.findFirst({
+              where: eq(items.id, id),
+            }))
+          );
         });
       },
     },
@@ -343,25 +346,7 @@ const mutation = new GraphQLObjectType({
         return item;
       },
     },
-    addCategory: {
-      type: CategoryType,
-      args: {
-        name: { type: new GraphQLNonNull(GraphQLString) },
-      },
-      resolve: async (parent, args) => {
-        return await db.transaction(async (tx) => {
-          const [category] = await tx.insert(categories).values({}).returning();
-
-          await tx.insert(categoriesTrans).values({
-            lang: "en",
-            name: args.name,
-            categoryId: category.id,
-          });
-
-          return category;
-        });
-      },
-    },
+    // -------------------categories mutations-------------------
     addOrUpdateCategory: {
       type: CategoryType,
       args: {
@@ -381,7 +366,9 @@ const mutation = new GraphQLObjectType({
             .returning();
 
           const id = category?.id ?? args.id;
-
+          await tx
+            .delete(categoriesTrans)
+            .where(eq(categoriesTrans.categoryId, id));
           args.details.forEach(async ({ lang, name }: any) => {
             const values = { lang, name, categoryId: id };
             await tx
@@ -390,15 +377,14 @@ const mutation = new GraphQLObjectType({
               .onConflictDoUpdate({
                 set: values,
                 target: [categoriesTrans.lang, categoriesTrans.categoryId],
-                where: and(
-                  eq(categoriesTrans.categoryId, id),
-                  eq(categoriesTrans.lang, lang)
-                ),
               });
           });
-          return category ?? await tx.query.categories.findFirst({
-            where: eq(categories.id, id),
-          })
+          return (
+            category ??
+            (await tx.query.categories.findFirst({
+              where: eq(categories.id, id),
+            }))
+          );
         });
       },
     },

@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
-import { FaEdit, FaShoppingBasket, FaTrashAlt } from "react-icons/fa";
+import { FaEdit, FaPlus, FaShoppingBasket, FaTrashAlt } from "react-icons/fa";
 import { z } from "zod";
 import { CategoriesMutations } from "../graphql/mutations/categories.mutations";
 import Spinner from "./Spinner";
@@ -49,10 +49,9 @@ const AddOrUpdateCategoryModel = ({ category }: any) => {
     await addCategory({ variables: { id: category?.id, ...data } });
   };
 
-  const errors = form.formState.errors;
-  const fieldsError = errors.details?.root
-    ? errors.details.root.message
-    : errors.details?.message;
+  const fieldsError = form.formState.errors.details?.root
+    ? form.formState.errors.details.root.message
+    : form.formState.errors.details?.message;
 
   const renderFields = fields.map((field, index) => (
     <div className="mb-3 d-flex gap-3" key={field.id}>
@@ -105,12 +104,12 @@ const AddOrUpdateCategoryModel = ({ category }: any) => {
       <button
         type="button"
         className={`btn ${
-          category?.id ? "btn-secondary" : "btn-primary"
+          category?.id ? "btn-secondary" : "btn-primary btn-lg"
         } d-inline-block fit-content`}
         data-bs-toggle="modal"
         data-bs-target={`#${modalId}`}>
         <div className="d-flex align-items-center justify-content-center gap-3">
-          {category?.id ? <FaEdit /> : <FaShoppingBasket />}
+          {category?.id ? <FaEdit /> : <FaPlus />}
           <div>{category?.id ? "Edit" : "Add"} Category</div>
         </div>
       </button>
@@ -147,7 +146,7 @@ const AddOrUpdateCategoryModel = ({ category }: any) => {
                   type="button"
                   onClick={() => append({ lang: " ", name: " " })}
                   className="btn btn-primary">
-                  Add Details
+                  Add Translation
                 </button>
                 <div className="modal-footer">
                   <button

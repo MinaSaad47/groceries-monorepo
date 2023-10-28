@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Constants } from "../constants";
 import { CategoriesMutations } from "../graphql/mutations/categories.mutations";
 import { CategoriesQueries } from "../graphql/queries";
-import AddOrUpdateCategoryModel from "./AddUpdateCategoryModal";
+import AddOrUpdateCategoryModel from "./AddOrUpdateCategoryModal";
 import ImageChooser from "./ImageChooser";
 import Spinner from "./Spinner";
 

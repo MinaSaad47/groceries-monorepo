@@ -1,19 +1,19 @@
 import { gql } from "@apollo/client";
 
 export abstract class ItemsMutations {
-  static ADD_ITEM = gql`
-    mutation addItem(
-      $name: String!
-      $description: String!
+  static ADD_OR_UPDATE_ITEM = gql`
+    mutation addOrUpdateItem(
+      $id: String
+      $details: [ItemTransInputType]!
       $price: Float!
-      $offerPrice: Float!
+      $offerPrice: Float
       $qty: Int!
       $qtyType: String!
-      $categoryId: String!
+      $categoryId: String
     ) {
-      addItem(
-        name: $name
-        description: $description
+      addOrUpdateItem(
+        id: $id
+        details: $details
         price: $price
         offerPrice: $offerPrice
         qty: $qty
@@ -21,22 +21,6 @@ export abstract class ItemsMutations {
         categoryId: $categoryId
       ) {
         id
-        details {
-          name
-          description
-          lang
-        }
-        price
-        offerPrice
-        qty
-        qtyType
-        images
-        thumbnail
-        category {
-          id
-          name
-          image
-        }
       }
     }
   `;
