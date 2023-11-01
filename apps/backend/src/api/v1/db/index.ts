@@ -4,7 +4,7 @@ import { scheduleJob } from "node-schedule";
 import postgres from "postgres";
 import log from "../../v1/utils/logger";
 
-import { Logger, lte } from "drizzle-orm";
+import { and, eq, Logger, lte } from "drizzle-orm";
 import { format } from "sql-formatter";
 import * as schema from "./schema";
 
@@ -47,13 +47,18 @@ export const db = drizzle(postgres(dbUrl, { ssl: "require" }), {
 export const scheduleDbJobs = async () => {
   const _job = scheduleJob("*/60 * * * * *", async () => {
     const timestamp = new Date();
-    log.info(`running database jobs at ${timestamp}`);
+    log.info(`running database jobs at ${timestamp.toUTCString()}`);
     const orders = await db
       .update(schema.orders)
       .set({
         status: "expired",
       })
-      .where(lte(schema.orders.expiresAt, timestamp))
+      .where(
+        and(
+          lte(schema.orders.expiresAt, timestamp),
+          eq(schema.orders.status, "pending")
+        )
+      )
       .returning();
     log.info(`updated ${orders.length} expired orders`);
   });
