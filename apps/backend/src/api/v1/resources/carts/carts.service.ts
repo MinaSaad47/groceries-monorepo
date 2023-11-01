@@ -166,7 +166,7 @@ export class CartsService {
 
       let amount = 0;
 
-      cart.items.map(async ({ qty, item: cartItem }) => {
+      for (const { item: cartItem, qty } of cart.items) {
         const item = await tx.query.items.findFirst({
           where: eq(items.id, cartItem.id),
         });
@@ -185,7 +185,7 @@ export class CartsService {
           .where(eq(items.id, item.id));
 
         amount += qty * item.price;
-      });
+      }
 
       const address = await tx.query.addresses.findFirst({
         where: and(eq(addresses.userId, userId), eq(addresses.isDefault, true)),
