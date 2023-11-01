@@ -141,13 +141,14 @@ async function main() {
     return swaggerUi.setup(docs)(req, res, next);
   });
 
-  app.use(handleErrorMiddleware);
 
   app.use("/", express.static(path.join(__dirname, "../../dashboard/dist")));
 
   app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "../../dashboard/dist/index.html"));
   });
+
+  app.use(handleErrorMiddleware);
 }
 
 main();
