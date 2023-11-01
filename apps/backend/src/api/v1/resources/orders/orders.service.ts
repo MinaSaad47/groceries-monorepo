@@ -1,9 +1,10 @@
 import { eq, getTableColumns, sql } from "drizzle-orm";
 import { Database } from "../../db";
-import { items, orders, ordersToItems } from "../../db/schema";
+import { items, itemsTrans, orders, ordersToItems } from "../../db/schema";
 import Stripe from "../../stripe";
 import { AuthorizationError } from "../../utils/errors/auth.error";
 import { NotFoundError } from "../../utils/errors/notfound.error";
+import { QueryLang } from "../items/items.validation";
 import { OrderNotPending } from "./orders.errors";
 
 export class OrdersService {
@@ -17,7 +18,7 @@ export class OrdersService {
     return await this.db
       .select({
         ...orderColumns,
-        totalPrice: sql<number>`sum(${ordersToItems.qty} * ${items.price})`,
+        totalPrice: sql<number>`sum(${ordersToItems.qty} * ${ordersToItems.price})`,
       })
       .from(orders)
       .where(eq(orders.userId, userId))
@@ -26,7 +27,11 @@ export class OrdersService {
       .groupBy(orders.id);
   };
 
-  public getOne = async (userId: string, orderId: string) => {
+  public getOne = async (
+    userId: string,
+    orderId: string,
+    queryLang: QueryLang
+  ) => {
     const order = await this.db.query.orders.findFirst({
       where: eq(orders.id, orderId),
       with: {
@@ -35,7 +40,12 @@ export class OrdersService {
         items: {
           columns: { itemId: false, orderId: false },
           with: {
-            item: true,
+            item: {
+              with: {
+                category: true,
+                details: { where: eq(itemsTrans.lang, queryLang.lang) },
+              },
+            },
           },
         },
       },
@@ -49,7 +59,17 @@ export class OrdersService {
       throw new AuthorizationError("order", userId, orderId);
     }
 
-    return order;
+    return {
+      ...order,
+      items: order.items.map(({ item: { details, ...item }, ...rest }) => ({
+        ...rest,
+        item: {
+          ...item,
+          name: details[0]?.name,
+          description: details[0]?.description,
+        },
+      })),
+    };
   };
 
   public checkout = async (userId: string, orderId: string) => {

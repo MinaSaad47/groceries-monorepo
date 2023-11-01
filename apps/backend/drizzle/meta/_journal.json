@@ -8,6 +8,27 @@
       "when": 1698523955057,
       "tag": "0000_dizzy_grim_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1698870933262,
+      "tag": "0001_perpetual_hannibal_king",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1698871019076,
+      "tag": "0002_brown_vapor",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1698872708143,
+      "tag": "0003_clumsy_firedrake",
+      "breakpoints": true
     }
   ]
 }

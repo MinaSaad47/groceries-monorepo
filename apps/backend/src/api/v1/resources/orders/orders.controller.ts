@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireJwt, validateRequest } from "../../middlewares";
 import Controller from "../../utils/interfaces/controller.interface";
 import { bearerAuth, registry } from "../../utils/openapi/registery";
+import { QueryLang, QueryLangSchema } from "../items/items.validation";
 import { OrdersService } from "./orders.service";
 import { OrdersParams, OrdersParamsSchema } from "./orders.validation";
 
@@ -38,6 +39,16 @@ export class OrdersController implements Controller {
       request: {
         params: OrdersParamsSchema,
       },
+      parameters: [
+        {
+          in: "query",
+          schema: {
+            type: "string",
+          },
+          name: "lang",
+          description: "value from 'ar', 'en'",
+        },
+      ],
       responses: {
         200: {
           description: "order",
@@ -82,7 +93,9 @@ export class OrdersController implements Controller {
     this.router.get("/", this.getAll);
     this.router.get(
       "/:orderId",
-      validateRequest(z.object({ params: OrdersParamsSchema })),
+      validateRequest(
+        z.object({ params: OrdersParamsSchema, query: QueryLangSchema })
+      ),
       this.getOne
     );
     this.router.post(
@@ -103,11 +116,15 @@ export class OrdersController implements Controller {
     return res.success({ data: orders });
   };
 
-  private getOne: RequestHandler<OrdersParams> = async (req, res) => {
+  private getOne: RequestHandler<OrdersParams, {}, {}, QueryLang> = async (
+    req,
+    res
+  ) => {
     console.log(req.params);
     const order = await this.ordersServices.getOne(
       req.user!.id,
-      req.params.orderId
+      req.params.orderId,
+      req.query
     );
     return res.success({ data: order });
   };

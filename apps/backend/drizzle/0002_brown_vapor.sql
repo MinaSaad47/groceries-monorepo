@@ -1,0 +1,1 @@
+ALTER TABLE "orders_to_items" ALTER COLUMN "price" SET DEFAULT 0;

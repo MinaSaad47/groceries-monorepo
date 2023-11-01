@@ -1,17 +1,16 @@
 import { InferSelectModel, relations, sql } from "drizzle-orm";
-import
-  {
-    boolean,
-    date,
-    doublePrecision,
-    integer,
-    pgEnum,
-    pgTable,
-    primaryKey,
-    text,
-    uuid,
-    varchar,
-  } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  doublePrecision,
+  integer,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 // Define an enum for user roles
 export const userRole = pgEnum("user_role", ["admin", "user"]);
@@ -106,7 +105,7 @@ export const imagesRelations = relations(images, ({ one }) => ({
 export const carts = pgTable("carts", {
   id: uuid("id")
     .primaryKey()
-    .references(() => users.id, {onDelete: "cascade"})
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull()
     .defaultRandom(),
 });
@@ -173,6 +172,7 @@ export const ordersToItems = pgTable(
     itemId: uuid("item_id")
       .notNull()
       .references(() => items.id, { onDelete: "cascade" }),
+    price: doublePrecision("price").notNull().default(0),
     qty: integer("qty").notNull(),
   },
   (t) => ({ pk: primaryKey(t.orderId, t.itemId) })

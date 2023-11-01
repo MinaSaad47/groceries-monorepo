@@ -203,6 +203,7 @@ export class CartsService {
       const orderItemsValues = cart.items.map(({ item, qty }) => ({
         orderId: insertedOrder.id,
         itemId: item.id,
+        price: item.offerPrice || item.price,
         qty,
       }));
 
