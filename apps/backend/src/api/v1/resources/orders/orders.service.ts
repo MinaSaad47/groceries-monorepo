@@ -56,7 +56,7 @@ export class OrdersService {
     }
 
     if (order.userId !== userId) {
-      throw new AuthorizationError("order", userId, orderId);
+      throw new AuthorizationError("orders", userId, orderId);
     }
 
     return {
@@ -90,7 +90,7 @@ export class OrdersService {
     }
 
     if (order.userId !== userId) {
-      throw new AuthorizationError("order", userId, orderId);
+      throw new AuthorizationError("orders", userId, orderId);
     }
 
     if (order.status !== "pending") {
@@ -121,7 +121,7 @@ export class OrdersService {
       }
 
       if (order.userId !== userId && userId !== "admin") {
-        throw new AuthorizationError("order", userId, orderId);
+        throw new AuthorizationError("orders", userId, orderId);
       }
 
       if (order.status === "canceled") {

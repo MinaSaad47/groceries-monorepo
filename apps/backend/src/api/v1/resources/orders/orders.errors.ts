@@ -4,7 +4,7 @@ export class OrderNotPending extends BaseError {
   name: string = "OrderNotPending";
 
   constructor(orderId: string) {
-    super(400, "can't checkout non pending order", {
+    super(422, "can't checkout non pending order", {
       key: "orders.checkout.not-pending",
       args: { orderId },
     });

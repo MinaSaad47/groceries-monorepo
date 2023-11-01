@@ -1,44 +1,63 @@
 {
-    "success": {
-        "200": {
-            "users": {
-                "update": "User was updated successfully",
-                "delete": "User was deleted successfully"
-            },
-            "items": {
-                "update": "Item was updated successfully",
-                "delete": "Item was deleted successfully"
-            },
-            "healthcheck": "API is up and running"
-        },
-        "201": {
-            "users": "User was created successfully",
-            "items": "Item was created successfully",
-            "carts": "Cart was created successfully"
-        }
+  "success": {
+    "200": {
+      "users": {
+        "update": "User was updated successfully",
+        "delete": "User was deleted successfully"
+      },
+      "items": {
+        "update": "Item was updated successfully",
+        "delete": "Item was deleted successfully"
+      },
+      "healthcheck": "API is up and running"
     },
-    "fail": {
-        "404": {
-            "users": "A user with id `{{id}}` was not found",
-            "items": "An item with id `{{id}}` was not found"
-        },
-        "401": {
-            "authorization": {
-                "role": "Users with `{{role}}` role are not permitted to access this resource"
-            }
-        },
-        "409": {
-            "duplication": {
-                "carts_to_items": "the item already present in the cart"
-            }
-        },
-        "422": {
-            "items": {
-                "availability": "the requested quantity `{{quantity}}` exceeds the available stock `{{stock}}`"
-            }
-        }
-    },
-    "error": {
-
+    "201": {
+      "users": "User was created successfully",
+      "items": "Item was created successfully",
+      "carts": "Cart was created successfully"
     }
+  },
+  "fail": {
+    "404": {
+      "users": "A user with id `{{id}}` was not found",
+      "items": "An item with id `{{id}}` was not found",
+      "carts": "A cart with id `{{id}}` was not found",
+      "orders": "An order with id `{{id}}` was not found",
+      "profiles": "A profile with id `{{id}}` was not found",
+      "reviews": "A review with id `{{id}}` was not found",
+      "categories": "A category with id `{{id}}` was not found",
+      "address": "A address with id `{{id}}` was not found"
+    },
+    "401": {
+      "authorization": {
+        "role": "Users with `{{role}}` role are not permitted to access this resource"
+      },
+      "token": {
+        "expired": "the token has expired"
+      },
+      "items": "user with id `{{userId}}` is not permitted to access an item with id `{{resourceId}}`",
+      "carts": "user with id `{{userId}}` is not permitted to access a cart with id `{{resourceId}}`",
+      "orders": "user with id `{{userId}}` is not permitted to access an order with id `{{resourceId}}`"
+    },
+    "409": {
+      "duplication": {
+        "carts_to_items": "the item already present in the cart"
+      }
+    },
+    "422": {
+      "items": {
+        "availability": "the requested quantity `{{quantity}}` exceeds the available stock `{{stock}}`"
+      },
+      "carts": {
+        "empty": "can't checkout the cart because it is empty"
+      },
+      "orders": {
+        "no-default-address": "no default address found",
+        "checkout": {
+          "not-pending": "can't checkout because the order is not pending"
+        }
+      }
+    }
+  },
+  "error": {}
 }

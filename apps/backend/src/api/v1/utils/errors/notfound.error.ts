@@ -12,7 +12,6 @@ export class NotFoundError extends BaseError {
       | "reviews"
       | "orders"
       | "categories"
-      | "brands"
       | "carts_to_items"
       | "addresses",
     id?: string

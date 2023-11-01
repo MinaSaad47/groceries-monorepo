@@ -3,7 +3,7 @@ import { BaseError } from "./base.error";
 export class AuthorizationError extends BaseError {
   name: string = "AuthorizationError";
 
-  constructor(resource: "cart" | "item" | "order", userId: string, resourceId: string) {
+  constructor(resource: "carts" | "items" | "orders", userId: string, resourceId: string) {
     super(
       401,
       `${resource}(${resourceId}) can't be accessed by user(${userId})`,
