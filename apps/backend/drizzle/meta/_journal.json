@@ -29,6 +29,41 @@
       "when": 1698872708143,
       "tag": "0003_clumsy_firedrake",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1698872997905,
+      "tag": "0004_cheerful_nocturne",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1698873065140,
+      "tag": "0005_mighty_vulcan",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1698874556019,
+      "tag": "0006_romantic_shard",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1698874620561,
+      "tag": "0007_free_amazoness",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1698874859197,
+      "tag": "0008_keen_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

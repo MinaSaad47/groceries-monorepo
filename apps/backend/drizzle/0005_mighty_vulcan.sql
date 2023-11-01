@@ -1,0 +1,2 @@
+ALTER TABLE "orders" ALTER COLUMN "created_at" SET DEFAULT now();--> statement-breakpoint
+ALTER TABLE "orders" ADD COLUMN "expires_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP + interval '30 minute' NOT NULL;

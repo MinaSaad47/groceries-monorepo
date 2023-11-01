@@ -1,4 +1,4 @@
-import { InferSelectModel, relations, sql } from "drizzle-orm";
+import { InferSelectModel, relations } from "drizzle-orm";
 import {
   boolean,
   date,
@@ -8,6 +8,7 @@ import {
   pgTable,
   primaryKey,
   text,
+  timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -149,10 +150,13 @@ export const orders = pgTable("orders", {
   addressId: uuid("address_id").references(() => addresses.id, {
     onDelete: "set null",
   }),
-  createdAt: date("created_at").notNull().defaultNow(),
-  expiresAt: date("expires_at")
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
-    .default(sql`CURRENT_TIMESTAMP + interval '30 minute'`),
+    .default(new Date()),
+  expiresAt: timestamp("expires_at", { withTimezone: true })
+    .notNull()
+    // + 30 minutes
+    .default(new Date(Date.now() + 30 * 60 * 1000)),
 });
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   user: one(users, { fields: [orders.userId], references: [users.id] }),

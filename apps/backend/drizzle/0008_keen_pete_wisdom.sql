@@ -1,0 +1,2 @@
+ALTER TABLE "orders" ALTER COLUMN "created_at" SET DEFAULT '2023-11-01T21:40:59.178Z';--> statement-breakpoint
+ALTER TABLE "orders" ALTER COLUMN "expires_at" SET DEFAULT '2023-11-01T22:10:59.178Z';

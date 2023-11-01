@@ -1,9 +1,10 @@
 import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { scheduleJob } from "node-schedule";
 import postgres from "postgres";
 import log from "../../v1/utils/logger";
 
-import { Logger } from "drizzle-orm";
+import { Logger, lte } from "drizzle-orm";
 import { format } from "sql-formatter";
 import * as schema from "./schema";
 
@@ -42,3 +43,18 @@ export const db = drizzle(postgres(dbUrl, { ssl: "require" }), {
   schema,
   logger: new CustomLogger(),
 });
+
+export const scheduleDbJobs = async () => {
+  const _job = scheduleJob("*/60 * * * * *", async () => {
+    const timestamp = new Date();
+    log.info(`running database jobs at ${timestamp}`);
+    const orders = await db
+      .update(schema.orders)
+      .set({
+        status: "expired",
+      })
+      .where(lte(schema.orders.expiresAt, timestamp))
+      .returning();
+    log.info(`updated ${orders.length} expired orders`);
+  });
+};

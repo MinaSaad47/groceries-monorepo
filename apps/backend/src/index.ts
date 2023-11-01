@@ -34,7 +34,7 @@ import extendExpressResponse from "./api/v1/utils/extensions/express.ext";
 // utilities
 import logger from "./api/v1/utils/logger";
 
-import { applyMigrations, db } from "./api/v1/db";
+import { applyMigrations, db, scheduleDbJobs } from "./api/v1/db";
 
 import { registry } from "./api/v1/utils/openapi/registery";
 
@@ -92,7 +92,7 @@ app.use(extendExpressResponse);
 
 async function main() {
   await applyMigrations();
-
+  await scheduleDbJobs();
   app.listen(process.env.PORT, () =>
     logger.info(`App is listening on port ${process.env.PORT}`)
   );
