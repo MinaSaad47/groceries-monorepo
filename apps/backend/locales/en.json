@@ -9,12 +9,31 @@
         "update": "Item was updated successfully",
         "delete": "Item was deleted successfully"
       },
-      "healthcheck": "API is up and running"
+      "healthcheck": "API is up and running",
+      "cart": {
+        "item": "updated the cart successfully"
+      },
+      "profile": {
+        "favorite": {
+          "delete": "the item was removed from your favorites"
+        },
+        "address": {
+          "delete": "the address was removed from your profile",
+          "update": "the address was updated successfully"
+        },
+        "picture": {
+          "update": "the picture was updated successfully"
+        },
+        "update": "the profile was updated successfully"
+      }
     },
     "201": {
       "users": "User was created successfully",
       "items": "Item was created successfully",
-      "carts": "Cart was created successfully"
+      "profile": {
+        "favorite": "an item was added to your favorites",
+        "address": "an address was added to your profile"
+      }
     }
   },
   "fail": {
@@ -59,5 +78,9 @@
       }
     }
   },
-  "error": {}
+  "error": {
+    "500": {
+      "internal": "internal server error"
+    }
+  }
 }

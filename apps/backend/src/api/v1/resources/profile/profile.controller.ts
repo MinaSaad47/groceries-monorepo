@@ -360,6 +360,6 @@ export class ProfileController implements Controller {
       profilePicture: url,
     });
 
-    res.success({ data: updatedUser, i18n: { key: "profile.update.picture" } });
+    res.success({ data: updatedUser, i18n: { key: "profile.picture.update" } });
   };
 }
